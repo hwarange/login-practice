@@ -78,8 +78,12 @@ const Signup = ({ navigation, route }) => { // route 추가
                     password,
                     isFamilyHave: isFamilyHave,
                 });
-                console.log('Response:', response.data);
-                navigation.navigate('Gender'); // 성공적으로 서버에 전송되면 다음 화면으로 이동
+    
+                // 액세스 토큰을 받아옵니다.
+                const accessToken = response.headers['accesstoken'];
+    
+                // 다음 페이지로 이동할 때 액세스 토큰을 params로 함께 전달합니다.
+                navigation.navigate('Gender', { accessToken });
             } catch (error) {
                 console.error('Error:', error);
                 // 오류 처리

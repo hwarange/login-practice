@@ -1,4 +1,3 @@
-// Login.js
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components/native';
 import { Image, Input, Button } from '../components';
@@ -7,6 +6,7 @@ import { validateEmail, removeWhitespace } from '../utils/commmon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axiosInstance from '../utils/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLogin } from '../contexts/LoginContext'
 
 const Container = styled.View`
   flex: 1;
@@ -31,6 +31,7 @@ const Login = ({ navigation }) => {
   const passwordRef = useRef();
   const [errorMessage, setErrorMessage] = useState('');
   const insets = useSafeAreaInsets();
+  const { setIsLoggedIn } = useLogin();
 
   const _handleLoginButtonPress = async () => {
     try {
@@ -38,10 +39,13 @@ const Login = ({ navigation }) => {
       console.log('Password:', password);
 
       const response = await axiosInstance.post('/members/login', { email, password });
-      const accessToken = response.data.accessToken;
+      console.log('서버 응답 데이터:', response.data);
+
+      const accessToken = response.headers['accesstoken'];
+
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
-        navigation.navigate('Allergy');
+        setIsLoggedIn(true);
       } else {
         setErrorMessage('로그인 실패: 액세스 토큰이 없습니다.');
       }

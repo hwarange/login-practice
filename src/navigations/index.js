@@ -1,11 +1,15 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./AuthStack";
+import MainStack from "./MainStack";
+import { useLogin } from "../contexts/LoginContext";
 
 const Navigation = () => {
-    return(
+    const { isLoggedIn } = useLogin();
+
+    return (
         <NavigationContainer>
-            <AuthStack />
+            {isLoggedIn ? <MainStack /> : <AuthStack />}
         </NavigationContainer>
     );
 };

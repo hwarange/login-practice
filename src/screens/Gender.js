@@ -33,10 +33,12 @@ const ButtonContainer = styled.View`
     justify-content: space-between;
 `;
 
-const Gender = ({ navigation }) => {
+const Gender = ({ navigation, route  }) => {
     const theme = useTheme();
     const [selectedGender, setSelectedGender] = useState(null);
     const [isChecked, setIsChecked] = useState(false);
+
+    const accessToken = route.params.accessToken;
 
     const handleGenderSelect = (gender) => {
         setSelectedGender(gender);
@@ -53,7 +55,7 @@ const Gender = ({ navigation }) => {
         
         if (gender) {
             try {
-                await axiosInstance.post('/member/gender', { gender });
+                await axiosInstance.post('/member/gender', { gender, accessToken });
                 navigation.navigate('Age');
             } catch (error) {
                 console.error("성별 데이터를 전송하는 데 실패했습니다", error);
