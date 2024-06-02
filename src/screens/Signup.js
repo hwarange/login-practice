@@ -3,6 +3,7 @@ import styled, { useTheme } from "styled-components/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { validateEmail, removeWhitespace } from "../utils/commmon";
 import { Input, Button } from "../components";
+import axios from 'axios';
 
 const Container = styled.View`
     flex: 1;
@@ -29,8 +30,10 @@ const ErrorText = styled.Text`
     color: ${({ theme }) => theme.errorText};
 `;
 
-const Signup = ({ navigation }) => {
+const Signup = ({ navigation, route }) => { // route 추가
     const theme = useTheme();
+
+    const { isFamilyHave } = route.params;
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -43,26 +46,20 @@ const Signup = ({ navigation }) => {
     const passwordRef = useRef();
     const passwordConfirmRef = useRef();
 
-    const didMountRef = useRef();
-
     useEffect(() => {
-        if (didMountRef.current) {
-            let _errorMessage = '';
-            if (!name) {
-                _errorMessage = 'Please enter your name.';
-            } else if (!validateEmail(email)) {
-                _errorMessage = 'Please verify your email.';
-            } else if (password.length < 6) {
-                _errorMessage = 'The password must contain 6 characters at least.';
-            } else if (password !== passwordConfirm) {
-                _errorMessage = 'Passwords need to match.';
-            } else {
-                _errorMessage = '';
-            }
-            setErrorMessage(_errorMessage);
+        let _errorMessage = '';
+        if (!name) {
+            _errorMessage = 'Please enter your name.';
+        } else if (!validateEmail(email)) {
+            _errorMessage = 'Please verify your email.';
+        } else if (password.length < 6) {
+            _errorMessage = 'The password must contain 6 characters at least.';
+        } else if (password !== passwordConfirm) {
+            _errorMessage = 'Passwords need to match.';
         } else {
-            didMountRef.current = true;
+            _errorMessage = '';
         }
+        setErrorMessage(_errorMessage);
     }, [name, email, password, passwordConfirm]);
 
     useEffect(() => {
@@ -72,9 +69,21 @@ const Signup = ({ navigation }) => {
     }, [name, email, password, passwordConfirm, errorMessage]);
 
     // 다음 버튼을 눌렀을 때 실행되는 함수
-    const handleNextButtonPress = () => {
+    const handleNextButtonPress = async () => {
         if (name && email && password && passwordConfirm && !errorMessage) {
-            navigation.navigate('Gender');
+            try {
+                const response = await axios.post('/members/check/register', {
+                    name,
+                    email,
+                    password,
+                    isFamilyHave: isFamilyHave,
+                });
+                console.log('Response:', response.data);
+                navigation.navigate('Gender'); // 성공적으로 서버에 전송되면 다음 화면으로 이동
+            } catch (error) {
+                console.error('Error:', error);
+                // 오류 처리
+            }
         } else {
             console.log("Please fill in all required fields correctly.");
         }
@@ -122,7 +131,7 @@ const Signup = ({ navigation }) => {
                     onChangeText={text => setPasswordConfirm(removeWhitespace(text))}
                     onSubmitEditing={() => {
                         if (!disabled) {
-                            navigation.navigate('Gender');
+                            handleNextButtonPress();
                         }
                     }}
                     placeholder='비밀번호 확인'
@@ -132,7 +141,7 @@ const Signup = ({ navigation }) => {
                 <ErrorText>{errorMessage}</ErrorText>
                 <Button
                     title="다음"
-                    onPress={handleNextButtonPress} // 다음 버튼의 onPress 이벤트에 함수 할당
+                    onPress={handleNextButtonPress}
                     disabled={disabled}
                     isFilled={false}
                     backgroundColor={theme.signupBox}

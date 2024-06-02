@@ -11,25 +11,27 @@ const Container = styled.View`
 `;
 
 const FamilyType = ({ navigation }) => {
-
     const theme = useTheme();
-    const handleNextButtonPress = () => { navigation.navigate('Signup') };
+    const [isFamilyHave, setIsFamilyHave] = useState(false); // 가족 중 이미 가입한 사람이 있는지 여부
 
-    return(
+    const handleNextButtonPress = () => {
+        navigation.navigate('Signup', { isFamilyHave }); // 다음 화면으로 상태를 전달
+    };
+
+    return (
         <Container>
             <FamilyButton
-             imageSource={require('../../assets/img.png')}
-             onPress={() => {}}
-             title="가족 중 처음으로
-             가입하는거에요."
-             titleColor={theme.loginBox}
+                imageSource={require('../../assets/img.png')}
+                onPress={() => setIsFamilyHave(false)} // 가족 중 처음으로 가입하는 경우
+                title="가족 중 처음으로 가입하는거에요."
+                titleColor={theme.loginBox}
             />
 
             <FamilyButton
-             imageSource={require('../../assets/home.png')}
-             onPress={() => {}}
-             title="가족 중 이미 가입한 사람이 있어요."
-             titleColor={theme.loginBox}
+                imageSource={require('../../assets/home.png')}
+                onPress={() => setIsFamilyHave(true)} // 이미 가입한 사람이 있는 경우
+                title="가족 중 이미 가입한 사람이 있어요."
+                titleColor={theme.loginBox}
             />
 
             <Button

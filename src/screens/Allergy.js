@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { useTheme } from "styled-components/native";
 import { Button, AgeButton, RoundButton } from "../components";
+import axiosInstance from "../utils/axiosInstance";
 
 const Container = styled.View`
     flex: 1;
@@ -31,13 +32,43 @@ const SingleButtonContainer = styled.View`
 `;
 
 const Allergy = ({ navigation }) => {
+    const theme = useTheme();
 
-    const handleNextButtonPress = () => {
-        navigation.navigate('Prefer');
+    // 비건 여부를 저장하는 상태
+    const [isVegan, setIsVegan] = useState(null);
+    // 알레르기 종류를 저장하는 상태 배열
+    const [selectedAllergies, setSelectedAllergies] = useState([]);
+
+    // 비건 버튼 클릭 시
+    const handleVeganButtonPress = (vegan) => {
+        setIsVegan(vegan);
     };
-    const theme = useTheme(); // useTheme 훅을 사용하여 테마를 가져옵니다.
-    const handlePress = () => {
-        console.log('Button pressed!');};
+
+    // 알레르기 버튼 클릭 시
+    const handleAllergyButtonPress = (allergy) => {
+        // 이미 선택된 알레르기라면 선택 해제, 아니면 추가
+        if (selectedAllergies.includes(allergy)) {
+            setSelectedAllergies(selectedAllergies.filter(item => item !== allergy));
+        } else {
+            setSelectedAllergies([...selectedAllergies, allergy]);
+        }
+    };
+
+    // 다음 버튼 클릭 시
+    const handleNextButtonPress = async () => {
+        const data = {
+            isVegan: isVegan,
+            allergyType: selectedAllergies
+        };
+        try {
+            // axios를 사용하여 서버로 데이터를 전송합니다.
+            await axiosInstance.post('/members/vegan/allergies/type', data);
+            console.log("데이터 전송 성공:", data);
+            navigation.navigate('Prefer');
+        } catch (error) {
+            console.error("데이터 전송 실패:", error);
+        }
+    };
 
 
     return (
@@ -45,13 +76,13 @@ const Allergy = ({ navigation }) => {
             <Title>비건이신가요?</Title>
             <ButtonContainer>
                 <AgeButton 
-                 onPress={() =>{}} 
+                 onPress={() =>{handleVeganButtonPress(true)}} 
                  title="예" 
                  backgroundColor={theme.signupBox}
                  titleColor={theme.background}
                 />
                 <AgeButton 
-                 onPress={() =>{}} 
+                 onPress={() =>{handleVeganButtonPress(false)}} 
                  title="아니오" 
                  backgroundColor={theme.background}
                  titleColor={theme.signupBox}
@@ -63,33 +94,33 @@ const Allergy = ({ navigation }) => {
                  imageSource={require("../../assets/Allergy_icon/egg.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="계란"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("계란")}}
+                 isFilled={selectedAllergies.includes("계란")}
+                 backgroundColor={selectedAllergies.includes("계란") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/milk.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="우유"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("우유")}}
+                 isFilled={selectedAllergies.includes("우유")}
+                 backgroundColor={selectedAllergies.includes("우유") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/wheatFlour.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="밀가루"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("밀가루")}}
+                 isFilled={selectedAllergies.includes("밀가루")}
+                 backgroundColor={selectedAllergies.includes("밀가루") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/peach.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="복숭아"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("복숭아")}}
+                 isFilled={selectedAllergies.includes("복숭아")}
+                 backgroundColor={selectedAllergies.includes("복숭아") ? "#FFEB3B" : "#FFFFFF"}
                 />
             </ButtonContainer>
             <ButtonContainer>
@@ -97,33 +128,33 @@ const Allergy = ({ navigation }) => {
                  imageSource={require("../../assets/Allergy_icon/fish.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="생선"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("생선")}}
+                 isFilled={selectedAllergies.includes("생선")}
+                 backgroundColor={selectedAllergies.includes("생선") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/peanut.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="땅콩"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("땅콩")}}
+                 isFilled={selectedAllergies.includes("땅콩")}
+                 backgroundColor={selectedAllergies.includes("땅콩") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/walnut.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="호두"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("호두")}}
+                 isFilled={selectedAllergies.includes("호두")}
+                 backgroundColor={selectedAllergies.includes("호두") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/chop.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="돼지고기"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("돼지고기")}}
+                 isFilled={selectedAllergies.includes("돼지고기")}
+                 backgroundColor={selectedAllergies.includes("돼지고기") ? "#FFEB3B" : "#FFFFFF"}
                 />
             </ButtonContainer>
             <ButtonContainer>
@@ -131,33 +162,33 @@ const Allergy = ({ navigation }) => {
                  imageSource={require("../../assets/Allergy_icon/crab.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="갑각류"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("갑각류")}}
+                 isFilled={selectedAllergies.includes("갑각류")}
+                 backgroundColor={selectedAllergies.includes("갑각류") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/clam.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="조개"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("조개")}}
+                 isFilled={selectedAllergies.includes("조개")}
+                 backgroundColor={selectedAllergies.includes("조개") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/squid.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="오징어"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("오징어")}}
+                 isFilled={selectedAllergies.includes("오징어")}
+                 backgroundColor={selectedAllergies.includes("오징어") ? "#FFEB3B" : "#FFFFFF"}
                 />
                 <RoundButton
                  imageSource={require("../../assets/Allergy_icon/soybean.png")}
                  containerStyle={{ marginBottom: 20 }}
                  label="대두"
-                 onPress={handlePress}
-                 isFilled={true}
-                 backgroundColor="#FFEB3B"
+                 onPress={() => {handleAllergyButtonPress("대두")}}
+                 isFilled={selectedAllergies.includes("대두")}
+                 backgroundColor={selectedAllergies.includes("대두") ? "#FFEB3B" : "#FFFFFF"}
                 />
             </ButtonContainer>
             <SingleButtonContainer>

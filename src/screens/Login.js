@@ -1,12 +1,12 @@
 // Login.js
-
-import React, { useState, useRef } from "react";
-import styled from "styled-components/native";
-import { Image, Input, Button } from "../components";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { validateEmail, removeWhitespace } from "../utils/commmon";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import axiosInstance from '../utils/axiosInstance'; // 수정된 부분
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components/native';
+import { Image, Input, Button } from '../components';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { validateEmail, removeWhitespace } from '../utils/commmon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import axiosInstance from '../utils/axiosInstance';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Container = styled.View`
   flex: 1;
@@ -34,17 +34,26 @@ const Login = ({ navigation }) => {
 
   const _handleLoginButtonPress = async () => {
     try {
-      const response = await axiosInstance.post("/login", {
-        email,
-        password
-      });
+      console.log('Email:', email);
+      console.log('Password:', password);
+
+      const response = await axiosInstance.post('/members/login', { email, password });
       const accessToken = response.data.accessToken;
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
         navigation.navigate('Allergy');
+      } else {
+        setErrorMessage('로그인 실패: 액세스 토큰이 없습니다.');
       }
     } catch (error) {
-      console.error('로그인 에러:', error);
+      console.error('로그인 에러:', error.response || error.message || error);
+      const message = error.response?.data?.message || '로그인에 실패했습니다. 다시 시도해주세요.';
+      setErrorMessage(message);
+      if (error.response) {
+        console.error('응답 데이터:', error.response.data);
+        console.error('응답 상태:', error.response.status);
+        console.error('응답 헤더:', error.response.headers);
+      }
     }
   };
 
@@ -52,7 +61,7 @@ const Login = ({ navigation }) => {
     const changedEmail = removeWhitespace(email);
     setEmail(changedEmail);
     setErrorMessage(
-      validateEmail(changedEmail) ? '' : 'Please verify your email.'
+      validateEmail(changedEmail) ? '' : '이메일을 확인해주세요.'
     );
   };
 
@@ -89,7 +98,7 @@ const Login = ({ navigation }) => {
         <Button title="로그인" onPress={_handleLoginButtonPress} />
         <Button
           title="회원가입"
-          onPress={() => navigation.navigate('FamilyType')}
+          onPress={() => navigation.navigate('Prefer')}
           isFilled={false}
         />
       </Container>

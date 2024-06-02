@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { useTheme } from "styled-components/native";
-import { Button, GenderButton, CustomCheckbox} from "../components"; 
+import axiosInstance from "../utils/axiosInstance";
+import { Button, GenderButton, CustomCheckbox } from "../components";
 
 const Container = styled.View`
     flex: 1;
@@ -39,13 +40,29 @@ const Gender = ({ navigation }) => {
 
     const handleGenderSelect = (gender) => {
         setSelectedGender(gender);
+        setIsChecked(false); // 성별이 선택되면 체크박스를 해제합니다.
     };
 
-    const handleToggle = () => {
-        setSelectedGender(null); // No gender selected
+    const handleCheckboxToggle = () => {
+        setIsChecked(!isChecked);
+        setSelectedGender(null); // 체크박스가 선택되면 성별 선택을 해제합니다.
     };
 
-    const handleNextButtonPress = () => { navigation.navigate('Age') };
+    const handleNextButtonPress = async () => {
+        const gender = isChecked ? 'secret' : selectedGender;
+        
+        if (gender) {
+            try {
+                await axiosInstance.post('/member/gender', { gender });
+                navigation.navigate('Age');
+            } catch (error) {
+                console.error("성별 데이터를 전송하는 데 실패했습니다", error);
+            }
+        } else {
+            // 성별이 선택되지 않았고 체크박스도 선택되지 않은 경우 처리
+            console.error("성별을 선택하거나 성별을 알리고 싶지 않음을 선택하세요");
+        }
+    };
 
     return (
         <Container>
@@ -54,23 +71,27 @@ const Gender = ({ navigation }) => {
             
             <ButtonContainer>
                 <GenderButton
-                    onPress={() => handleGenderSelect('female')}
+                    onPress={() => { handleGenderSelect('female');
+                                     console.log("여성");}}
                     title="여성"
                     imageSource={require("../../assets/female1.png")}
-                    backgroundColor={theme.miniText}
+                    backgroundColor={selectedGender === 'female' ? theme.selectedButton : theme.miniText}
                     titleColor={theme.text}
                 />
                 <GenderButton
-                    onPress={() => handleGenderSelect('male')}
+                    onPress={() => {handleGenderSelect('male');
+                                    console.log("남성");
+                    }}
                     title="남성"
                     imageSource={require("../../assets/male1.png")}
-                    backgroundColor={theme.miniText}
+                    backgroundColor={selectedGender === 'male' ? theme.selectedButton : theme.miniText}
                     titleColor={theme.text}
                 />
             </ButtonContainer>
             <CustomCheckbox
                 label="성별을 알리고 싶지 않습니다."
-                onPress={()=>{}}
+                onPress={handleCheckboxToggle}
+                isChecked={isChecked}
             />
             <Button
                 title="다음"

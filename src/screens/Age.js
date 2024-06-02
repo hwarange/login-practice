@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled, { useTheme } from "styled-components/native";
+import axiosInstance from "../utils/axiosInstance";
 import { Button, AgeButton } from "../components";
 
 const Container = styled.View`
@@ -38,9 +39,23 @@ const SingleButtonContainer = styled.View`
 
 const Age = ({ navigation }) => {
     const theme = useTheme();
+    const [selectedAgeGroup, setSelectedAgeGroup] = useState(null);
 
-    const handleNextButtonPress = () => {
-        navigation.navigate('Allergy');
+    const handleAgeSelect = (ageGroup) => {
+        setSelectedAgeGroup(ageGroup);
+    };
+
+    const handleNextButtonPress = async () => {
+        if (selectedAgeGroup) {
+            try {
+                await axiosInstance.post('/member/age-group', { ageGroup: selectedAgeGroup });
+                navigation.navigate('Allergy');
+            } catch (error) {
+                console.error("연령대 데이터를 전송하는 데 실패했습니다", error);
+            }
+        } else {
+            console.error("연령대를 선택하세요");
+        }
     };
 
     return (
@@ -48,25 +63,21 @@ const Age = ({ navigation }) => {
             <Title>연령대를{"\n"}선택해주세요</Title>
             <MiniText>나이를 설정하면{"\n"}더 정확한 맞춤 장보기를 제공해드립니다.</MiniText>
             <ButtonContainer>
-                <AgeButton title="10대" onPress={()=>{}}/>
-                <AgeButton title="20대" onPress={()=>{}}/>
+                <AgeButton title="10대" onPress={() => handleAgeSelect("10대")} />
+                <AgeButton title="20대" onPress={() => handleAgeSelect("20대")} />
             </ButtonContainer>
             <ButtonContainer>
-                <AgeButton title="30대" onPress={()=>{}}/>
-                <AgeButton title="40대" onPress={()=>{}}/>
+                <AgeButton title="30대" onPress={() => handleAgeSelect("30대")} />
+                <AgeButton title="40대" onPress={() => handleAgeSelect("40대")} />
             </ButtonContainer>
             <ButtonContainer>
-                <AgeButton title="50대" onPress={()=>{}}/>
-                <AgeButton title="60대" onPress={()=>{}}/>
+                <AgeButton title="50대" onPress={() => handleAgeSelect("50대")} />
+                <AgeButton title="60대" onPress={() => handleAgeSelect("60대")} />
             </ButtonContainer>
             <SingleButtonContainer>
-                <AgeButton title="60대 이상" onPress={()=>{}}/>
+                <AgeButton title="60대 이상" onPress={() => handleAgeSelect("60대 이상")} />
             </SingleButtonContainer>
             
-        
-          
-            
-                
             <Button
                 title="다음"
                 onPress={handleNextButtonPress}
